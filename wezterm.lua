@@ -154,6 +154,19 @@ config.ssh_domains = {
 		remote_address = "127.0.0.1:2222",
 		username = "ec2-user",
 	},
+	{
+		name = "imac",
+		remote_address = "192.168.1.124",
+		local_echo_threshold_ms = 10,
+		username = "al",
+	},
+	{
+		name = "imac.remote",
+		-- remote_address = "ilseman.bouncme.net:2222",
+		remote_address = "24.148.85.146:2222",
+		username = "al",
+		local_echo_threshold_ms = 10,
+	},
 }
 config.underline_thickness = "1pt"
 config.window_padding = {
