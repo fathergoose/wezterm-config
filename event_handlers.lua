@@ -65,7 +65,7 @@ local M = function(config)
 	wezterm.on("update-status", function(window, pane)
 		local cells = {}
 		local cwd_uri = pane:get_current_working_dir()
-		local hostname
+		local hostname = os.getenv("HOSTNAME")
 		if cwd_uri then
 			cwd_uri = cwd_uri:sub(8)
 			local slash = cwd_uri:find("/")
