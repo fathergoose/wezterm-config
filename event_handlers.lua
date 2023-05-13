@@ -65,10 +65,10 @@ local M = function(config)
 	wezterm.on("update-status", function(window, pane)
 		local cells = {}
 		local cwd_uri = pane:get_current_working_dir()
+		local hostname
 		if cwd_uri then
 			cwd_uri = cwd_uri:sub(8)
 			local slash = cwd_uri:find("/")
-			local hostname
 			local user = os.getenv("USER")
 			if slash then
 				hostname = cwd_uri:sub(1, slash - 1)
@@ -116,7 +116,7 @@ local M = function(config)
 			{ Attribute = { Intensity = "Bold" } },
 			{ Foreground = { Color = text_fg } },
 			{ Background = { Color = bg_0 } },
-			{ Text = "  " .. window:active_workspace() .. " " },
+			{ Text = "  " .. window:active_workspace() .. " (" .. hostname .. ", " .. pane:get_domain_name() .. "): " },
 			"ResetAttributes",
 		}))
 	end)
