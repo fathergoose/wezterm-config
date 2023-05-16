@@ -19,6 +19,12 @@ return {
 				end),
 			}),
 		},
+		{
+			key = "E",
+			mods = "CTRL",
+			action = act.EmitEvent("trigger-vim-with-visible-text"),
+		},
+
 		{ key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
 		{ key = "Enter", mods = "SHIFT|ALT", action = act.ToggleFullScreen },
 		{ key = "!", mods = "CTRL", action = act.ActivateTab(0) },

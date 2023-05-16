@@ -11,8 +11,8 @@ end
 launcher.apply(config)
 config.inactive_pane_hsb = {
 	-- hue = .2,
-	saturation = 0.8,
-	brightness = 0.5,
+	saturation = 0.9,
+	brightness = 0.7,
 }
 config.macos_window_background_blur = 15
 config.window_background_opacity = 0.95
@@ -44,7 +44,9 @@ config.window_decorations = "INTEGRATED_BUTTONS"
 
 config.font = wezterm.font_with_fallback({
 	{ family = "MonoLisa 230504", weight = "Regular", style = "Normal" },
-	-- { family = "SF Compact Text", weight = "Medium", style = "Italic" },
+    'Nerd Font Symbols',
+	{ family = "MonoLisaOne Nerd Font", weight = "Regular", style = "Normal" },
+	{ family = "SF Compact Text", weight = "Regular", style = "Normal" },
 })
 config.font_rules = {
 	-- For Bold-but-not-italic
