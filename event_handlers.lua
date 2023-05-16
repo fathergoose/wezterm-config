@@ -1,4 +1,19 @@
 local wezterm = require("wezterm")
+
+local guard_user_variables = function(vars)
+	local defaults = {
+		WEZTERM_HOST = "Chaundres-Air.lan",
+		WEZTERM_IN_TMUX = "0",
+		WEZTERM_PROG = "unknown_program",
+		WEZTERM_USER = "al",
+	}
+	local parsed = {}
+	for k, v in pairs(defaults) do
+		parsed[k] = vars[k] or v
+	end
+	return parsed
+end
+
 local M = function(config)
 	local scheme = wezterm.color.get_builtin_schemes()[config.color_scheme]
 	local bg_0 = wezterm.color.parse(scheme["background"])
@@ -14,6 +29,43 @@ local M = function(config)
 		bg_3,
 		bg_4,
 	}
+
+	local wezterm = require("wezterm")
+	local io = require("io")
+	local os = require("os")
+	local act = wezterm.action
+
+	wezterm.on("trigger-vim-with-visible-text", function(window, pane)
+		-- Retrieve the current viewport's text.
+		--
+		-- Note: You could also pass an optional number of lines (eg: 2000) to
+		-- retrieve that number of lines starting from the bottom of the viewport.
+		local viewport_text = pane:get_lines_as_text()
+
+		-- Create a temporary file to pass to vim
+		local name = os.tmpname()
+		local f = io.open(name, "w+")
+		f:write(viewport_text)
+		f:flush()
+		f:close()
+
+		-- Open a new window running vim and tell it to open the file
+		window:perform_action(
+			act.SpawnCommandInNewWindow({
+				args = { "zsh", "nvim", name },
+			}),
+			pane
+		)
+
+		-- Wait "enough" time for vim to read the file before we remove it.
+		-- The window creation and process spawn are asynchronous wrt. running
+		-- this script and are not awaitable, so we just pick a number.
+		--
+		-- Note: We don't strictly need to remove this file, but it is nice
+		-- to avoid cluttering up the temporary directory.
+		wezterm.sleep_ms(1000)
+		os.remove(name)
+	end)
 
 	wezterm.on("toggle-opacity", function(window, _pane)
 		local override = window:get_config_overrides() or {}
@@ -64,23 +116,22 @@ local M = function(config)
 	end)
 	wezterm.on("update-status", function(window, pane)
 		local cells = {}
-		local cwd_uri = pane:get_current_working_dir()
-		local hostname = os.getenv("HOSTNAME")
-		if cwd_uri then
-			cwd_uri = cwd_uri:sub(8)
-			local slash = cwd_uri:find("/")
-			local user = os.getenv("USER")
-			if slash then
-				hostname = cwd_uri:sub(1, slash - 1)
-				local dot = hostname:find("[.]")
-				if dot then
-					hostname = hostname:sub(1, dot - 1)
-				end
-				table.insert(cells, "")
-				table.insert(cells, "力 " .. user .. "@" .. hostname)
-				table.insert(cells, "󱘖 " .. pane:get_domain_name())
-			end
+		local uvars = {}
+		local status, retval = pcall(pane.get_user_vars, pane)
+        if status then
+			uvars = retval
 		end
+
+		local vars = guard_user_variables(uvars)
+		local cwd_uri = pane:get_current_working_dir()
+		local hostname = vars["WEZTERM_HOST"]
+		local dot = hostname:find("[.]")
+		if dot then
+			hostname = hostname:sub(1, dot - 1)
+		end
+		table.insert(cells, "")
+		table.insert(cells, "力 " .. vars["WEZTERM_USER"] .. "@" .. hostname)
+		table.insert(cells, "󱘖 " .. pane:get_domain_name())
 
 		local date = wezterm.strftime("%a %b %-d %H:%M")
 		table.insert(cells, " " .. date)
@@ -116,7 +167,9 @@ local M = function(config)
 			{ Attribute = { Intensity = "Bold" } },
 			{ Foreground = { Color = text_fg } },
 			{ Background = { Color = bg_0 } },
-			{ Text = "  " .. window:active_workspace() .. " (" .. hostname .. ", " .. pane:get_domain_name() .. "): " },
+			{
+				Text = "  " .. window:active_workspace(),
+			},
 			"ResetAttributes",
 		}))
 	end)
