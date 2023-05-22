@@ -43,10 +43,8 @@ end)(config)
 config.window_decorations = "INTEGRATED_BUTTONS"
 
 config.font = wezterm.font_with_fallback({
-	{ family = "MonoLisa 230504", weight = "Regular", style = "Normal" },
-    'Nerd Font Symbols',
+	{ family = "MonoLisa 230504", weight = "Regular", streach = "Normal", style = "Normal" },
 	{ family = "MonoLisaOne Nerd Font", weight = "Regular", style = "Normal" },
-	{ family = "SF Compact Text", weight = "Regular", style = "Normal" },
 })
 config.font_rules = {
 	-- For Bold-but-not-italic
@@ -135,7 +133,7 @@ config.command_palette_fg_color = scheme.ansi[8]
 config.command_palette_font_size = 11.0
 
 config.window_frame = {
-	font = wezterm.font({ family = "SF Compact Text" }),
+	font = wezterm.font_with_fallback({"SF Compact Text" }),
 	font_size = 10,
 	active_titlebar_bg = bg_0,
 	inactive_titlebar_bg = bg_0,

@@ -123,18 +123,50 @@ local M = function(config)
 		end
 
 		local vars = guard_user_variables(uvars)
-		local cwd_uri = pane:get_current_working_dir()
 		local hostname = vars["WEZTERM_HOST"]
 		local dot = hostname:find("[.]")
 		if dot then
 			hostname = hostname:sub(1, dot - 1)
 		end
 		table.insert(cells, "")
-		table.insert(cells, "力 " .. vars["WEZTERM_USER"] .. "@" .. hostname)
-		table.insert(cells, "󱘖 " .. pane:get_domain_name())
+		table.insert(cells, " \u{f048b} " .. vars["WEZTERM_USER"] .. "@" .. hostname .. " ")
+		table.insert(cells, " 󱘖 " .. pane:get_domain_name() .. " ")
 
-		local date = wezterm.strftime("%a %b %-d %H:%M")
-		table.insert(cells, " " .. date)
+		local date = wezterm.strftime("%a %b %-d | %H:%M ")
+		table.insert(cells, " \u{f00ed} " .. date)
+
+        local getBatteryIdicator = function (charge)
+            if charge > 90 then
+                return ""
+            elseif charge > 80 then
+                return ""
+            elseif charge > 70 then
+                return ""
+            elseif charge > 60 then
+                return ""
+            elseif charge > 50 then
+                return ""
+            elseif charge > 40 then
+                return ""
+            elseif charge > 30 then
+                return ""
+            elseif charge > 20 then
+                return ""
+            elseif charge > 10 then
+                return ""
+            else
+                return "󱃍"
+            end
+        end
+        local battery = wezterm.battery_info()
+        for _, bat in ipairs(battery) do
+            local indicator = getBatteryIdicator(bat.state_of_charge * 100)
+            if bat.state == "Discharging" then
+                table.insert(cells, " (-)" .. indicator)
+            else
+                table.insert(cells, " (+)" .. indicator)
+            end
+        end
 
 		local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
 
