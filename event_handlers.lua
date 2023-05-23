@@ -140,23 +140,23 @@ local M = function(config)
 			if charge == nil then
 				return
 			end
-            local tenths_of_a_charge = math.floor(charge/10)
-            print("tenths")
-            print(tenths_of_a_charge)
-            
-            local full = 0xf0079
-            local ten_percent = 0xf007a
-            local alert = 0xf0083
-            local icon_index = tenths_of_a_charge > 0 and (full + tenths_of_a_charge) or alert
-            print("icon_index")
-            print(string.format("%x", icon_index))
-            return utf8.char(icon_index)
+			local tenths_of_a_charge = math.floor(charge / 10)
+			print("tenths")
+			print(tenths_of_a_charge)
+
+			local full = 0xf0079
+			local ten_percent = 0xf007a
+			local alert = 0xf0083
+			local icon_index = tenths_of_a_charge > 0 and (full + tenths_of_a_charge) or alert
+			print("icon_index")
+			print(string.format("%x", icon_index))
+			return utf8.char(icon_index)
 		end
 		local batteries = wezterm.battery_info()
 		for _, bat in ipairs(batteries) do
-            local percent_charged = bat.state_of_charge * 100
+			local percent_charged = bat.state_of_charge * 100
 			local indicator = getBatteryIdicator(percent_charged)
-			table.insert(cells,  math.floor(percent_charged) .. "%\u{2000}\u{f140b}" .. indicator .. "\u{2002}" )
+			table.insert(cells, math.floor(percent_charged) .. "%\u{2000}\u{f140b}" .. indicator .. "\u{2002}")
 		end
 
 		local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
@@ -186,12 +186,19 @@ local M = function(config)
 
 		window:set_right_status(wezterm.format(elements))
 
+		local left_format_string = " 󱘖 "
+			.. (pane:get_domain_name() or "domain unknown")
+			.. " "
+			.. utf8.char(0xf4b3)
+			.. enspace
+			.. window:active_workspace()
+
 		window:set_left_status(wezterm.format({
 			{ Attribute = { Intensity = "Bold" } },
 			{ Foreground = { Color = text_fg } },
 			{ Background = { Color = bg_0 } },
 			{
-				Text = " \u{f4b3}" .. enspace .. window:active_workspace(),
+				Text = left_format_string,
 			},
 			"ResetAttributes",
 		}))
