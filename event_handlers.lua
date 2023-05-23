@@ -4,6 +4,7 @@ local io = require("io")
 local os = require("os")
 local icons = require("icons")
 local emspace = "\u{2003}"
+local enspace = "\u{2002}"
 
 local guard_user_variables = function(vars)
 	local defaults = {
@@ -132,24 +133,30 @@ local M = function(config)
 		table.insert(cells, " \u{f048b} " .. vars["WEZTERM_USER"] .. "@" .. hostname .. " ")
 		table.insert(cells, " 󱘖 " .. (pane:get_domain_name() or "domain unknown") .. " ")
 
-		local date = wezterm.strftime("%a %b %-d | %H:%M ")
-		table.insert(cells, " \u{f00ed} " .. date)
+		local datetime = wezterm.strftime("%a %b %-d\u{2002}\u{f017}\u{2000}%H:%M ")
+		table.insert(cells, "\u{f00ed}\u{2000}" .. datetime)
 
 		local getBatteryIdicator = function(charge)
-            if charge == nil then
-                return
-            end
-			local icon_string = "mdi-battery" .. (charge % 10 and "_" .. (charge % 10)) or ""
-            return wezterm.nerdfont(icon_string)
-		end
-		local battery = wezterm.battery_info()
-		for _, bat in ipairs(battery) do
-			local indicator = getBatteryIdicator(bat.state_of_charge * 100)
-			if bat.state == "Discharging" then
-				table.insert(cells, " (-)" .. indicator)
-			else
-				table.insert(cells, " (+)" .. indicator)
+			if charge == nil then
+				return
 			end
+            local tenths_of_a_charge = math.floor(charge/10)
+            print("tenths")
+            print(tenths_of_a_charge)
+            
+            local full = 0xf0079
+            local ten_percent = 0xf007a
+            local alert = 0xf0083
+            local icon_index = tenths_of_a_charge > 0 and (full + tenths_of_a_charge) or alert
+            print("icon_index")
+            print(string.format("%x", icon_index))
+            return utf8.char(icon_index)
+		end
+		local batteries = wezterm.battery_info()
+		for _, bat in ipairs(batteries) do
+            local percent_charged = bat.state_of_charge * 100
+			local indicator = getBatteryIdicator(percent_charged)
+			table.insert(cells,  math.floor(percent_charged) .. "%\u{2000}\u{f140b}" .. indicator .. "\u{2002}" )
 		end
 
 		local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
@@ -184,7 +191,7 @@ local M = function(config)
 			{ Foreground = { Color = text_fg } },
 			{ Background = { Color = bg_0 } },
 			{
-				Text = " \u{f4b3}" .. emspace .. window:active_workspace(),
+				Text = " \u{f4b3}" .. enspace .. window:active_workspace(),
 			},
 			"ResetAttributes",
 		}))
