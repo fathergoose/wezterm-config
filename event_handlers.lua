@@ -1,8 +1,12 @@
 local wezterm = require("wezterm")
+local act = wezterm.action
+local io = require("io")
+local os = require("os")
+local icons = require("icons")
 
 local guard_user_variables = function(vars)
 	local defaults = {
-		WEZTERM_HOST = "Chaundres-Air.lan",
+		WEZTERM_HOST = "als-imac.lan",
 		WEZTERM_IN_TMUX = "0",
 		WEZTERM_PROG = "unknown_program",
 		WEZTERM_USER = "al",
@@ -29,11 +33,6 @@ local M = function(config)
 		bg_3,
 		bg_4,
 	}
-
-	local wezterm = require("wezterm")
-	local io = require("io")
-	local os = require("os")
-	local act = wezterm.action
 
 	wezterm.on("trigger-vim-with-visible-text", function(window, pane)
 		-- Retrieve the current viewport's text.
@@ -118,23 +117,55 @@ local M = function(config)
 		local cells = {}
 		local uvars = {}
 		local status, retval = pcall(pane.get_user_vars, pane)
-        if status then
+		if status then
 			uvars = retval
 		end
 
 		local vars = guard_user_variables(uvars)
-		local cwd_uri = pane:get_current_working_dir()
 		local hostname = vars["WEZTERM_HOST"]
 		local dot = hostname:find("[.]")
 		if dot then
 			hostname = hostname:sub(1, dot - 1)
 		end
 		table.insert(cells, "")
-		table.insert(cells, "力 " .. vars["WEZTERM_USER"] .. "@" .. hostname)
-		table.insert(cells, "󱘖 " .. pane:get_domain_name())
+		table.insert(cells, " \u{f048b} " .. vars["WEZTERM_USER"] .. "@" .. hostname .. " ")
+		table.insert(cells, " 󱘖 " .. (pane:get_domain_name() or "domain unknown") .. " ")
 
-		local date = wezterm.strftime("%a %b %-d %H:%M")
-		table.insert(cells, " " .. date)
+		local date = wezterm.strftime("%a %b %-d | %H:%M ")
+		table.insert(cells, " \u{f00ed} " .. date)
+
+		local getBatteryIdicator = function(charge)
+			if charge > 90 then
+				return ""
+			elseif charge > 80 then
+				return ""
+			elseif charge > 70 then
+				return ""
+			elseif charge > 60 then
+				return ""
+			elseif charge > 50 then
+				return ""
+			elseif charge > 40 then
+				return ""
+			elseif charge > 30 then
+				return ""
+			elseif charge > 20 then
+				return ""
+			elseif charge > 10 then
+				return ""
+			else
+				return "󱃍"
+			end
+		end
+		local battery = wezterm.battery_info()
+		for _, bat in ipairs(battery) do
+			local indicator = getBatteryIdicator(bat.state_of_charge * 100)
+			if bat.state == "Discharging" then
+				table.insert(cells, " (-)" .. indicator)
+			else
+				table.insert(cells, " (+)" .. indicator)
+			end
+		end
 
 		local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
 
@@ -173,14 +204,32 @@ local M = function(config)
 			"ResetAttributes",
 		}))
 	end)
+	local function expandTilde(path)
+		local home = os.getenv("HOME")
+		if path:sub(1, 1) == "~" then
+			return home .. path:sub(2)
+		end
+		return path
+	end
+
 
 	--  ;
 	wezterm.on("format-tab-title", function(tab_info)
-		local title = tab_info.tab_title
-		if title and #title > 0 then
+		return icons.get_number_icon(tab_info.tab_index + 1) .. "   " .. (function(ti)
+			local title = ti.tab_title
+			if title and #title > 0 then
+				return title
+			end
+			title = ti.active_pane.title:gsub("%b() %-", "")
+			if title == "~" then
+				return expandTilde(title)
+			end
+			local fg_proc = ti.active_pane.foreground_process_name
+			if fg_proc and fg_proc == "zsh" then
+				return "zsh:/" .. ti.active_pane.title:gsub("%b() %-", "")
+			end
 			return title
-		end
-		return tab_info.active_pane.title:gsub("%b() %-", "")
+		end)(tab_info)
 	end)
 
 	wezterm.on("augment-command-palette", function(window)

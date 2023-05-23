@@ -43,8 +43,7 @@ end)(config)
 config.window_decorations = "INTEGRATED_BUTTONS"
 
 config.font = wezterm.font_with_fallback({
-	{ family = "MonoLisa 230504", weight = "Regular", style = "Normal" },
-    'Nerd Font Symbols',
+	{ family = "MonoLisa 230504", weight = "Regular", stretch = "Normal", style = "Normal" },
 	{ family = "MonoLisaOne Nerd Font", weight = "Regular", style = "Normal" },
 	{ family = "SF Compact Text", weight = "Regular", style = "Normal" },
 })
