@@ -136,27 +136,11 @@ local M = function(config)
 		table.insert(cells, " \u{f00ed} " .. date)
 
 		local getBatteryIdicator = function(charge)
-			if charge > 90 then
-				return ""
-			elseif charge > 80 then
-				return ""
-			elseif charge > 70 then
-				return ""
-			elseif charge > 60 then
-				return ""
-			elseif charge > 50 then
-				return ""
-			elseif charge > 40 then
-				return ""
-			elseif charge > 30 then
-				return ""
-			elseif charge > 20 then
-				return ""
-			elseif charge > 10 then
-				return ""
-			else
-				return "󱃍"
-			end
+            if charge == nil then
+                return
+            end
+			local icon_string = "mdi-battery" .. (charge % 10 and "_" .. (charge % 10)) or ""
+            return wezterm.nerdfont(icon_string)
 		end
 		local battery = wezterm.battery_info()
 		for _, bat in ipairs(battery) do
@@ -205,7 +189,7 @@ local M = function(config)
 			"ResetAttributes",
 		}))
 	end)
-    --  
+	-- 
 	local function expandTilde(path)
 		local home = os.getenv("HOME")
 		if path:sub(1, 1) == "~" then
@@ -214,24 +198,25 @@ local M = function(config)
 		return path
 	end
 
-
 	--  ;
 	wezterm.on("format-tab-title", function(tab_info)
-		return icons.get_number_icon(tab_info.tab_index + 1) .. "   " .. (function(ti)
-			local title = ti.tab_title
-			if title and #title > 0 then
+		return icons.get_number_icon(tab_info.tab_index + 1)
+			.. "   "
+			.. (function(ti)
+				local title = ti.tab_title
+				if title and #title > 0 then
+					return title
+				end
+				title = ti.active_pane.title:gsub("%b() %-", "")
+				if title == "~" then
+					return expandTilde(title)
+				end
+				local fg_proc = ti.active_pane.foreground_process_name
+				if fg_proc and fg_proc == "zsh" then
+					return "zsh:/" .. ti.active_pane.title:gsub("%b() %-", "")
+				end
 				return title
-			end
-			title = ti.active_pane.title:gsub("%b() %-", "")
-			if title == "~" then
-				return expandTilde(title)
-			end
-			local fg_proc = ti.active_pane.foreground_process_name
-			if fg_proc and fg_proc == "zsh" then
-				return "zsh:/" .. ti.active_pane.title:gsub("%b() %-", "")
-			end
-			return title
-		end)(tab_info)
+			end)(tab_info)
 	end)
 
 	wezterm.on("augment-command-palette", function(window)
