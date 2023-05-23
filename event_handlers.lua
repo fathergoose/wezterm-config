@@ -3,6 +3,7 @@ local act = wezterm.action
 local io = require("io")
 local os = require("os")
 local icons = require("icons")
+local emspace = "\u{2003}"
 
 local guard_user_variables = function(vars)
 	local defaults = {
@@ -199,11 +200,12 @@ local M = function(config)
 			{ Foreground = { Color = text_fg } },
 			{ Background = { Color = bg_0 } },
 			{
-				Text = "  " .. window:active_workspace(),
+				Text = " \u{f4b3}" .. emspace .. window:active_workspace(),
 			},
 			"ResetAttributes",
 		}))
 	end)
+    --  
 	local function expandTilde(path)
 		local home = os.getenv("HOME")
 		if path:sub(1, 1) == "~" then
