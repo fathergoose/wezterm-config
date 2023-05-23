@@ -43,8 +43,7 @@ end)(config)
 config.window_decorations = "INTEGRATED_BUTTONS"
 
 config.font = wezterm.font_with_fallback({
-	{ family = "MonoLisa 230504", weight = "Regular", style = "Normal" },
-    'Nerd Font Symbols',
+	{ family = "MonoLisa 230504", weight = "Regular", stretch = "Normal", style = "Normal" },
 	{ family = "MonoLisaOne Nerd Font", weight = "Regular", style = "Normal" },
 	{ family = "SF Compact Text", weight = "Regular", style = "Normal" },
 })
@@ -183,6 +182,7 @@ config.webgpu_preferred_adapter = wezterm.gui.enumerate_gpus()[1]
 config.front_end = "WebGpu"
 
 config.default_workspace = "default"
+config.default_domain = "local"
 
 config.default_gui_startup_args = { "connect", "unix" }
 config.tab_max_width = 8

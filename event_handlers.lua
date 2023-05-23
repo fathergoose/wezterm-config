@@ -1,8 +1,14 @@
 local wezterm = require("wezterm")
+local act = wezterm.action
+local io = require("io")
+local os = require("os")
+local icons = require("icons")
+local emspace = "\u{2003}"
+local enspace = "\u{2002}"
 
 local guard_user_variables = function(vars)
 	local defaults = {
-		WEZTERM_HOST = "Chaundres-Air.lan",
+		WEZTERM_HOST = "als-imac.lan",
 		WEZTERM_IN_TMUX = "0",
 		WEZTERM_PROG = "unknown_program",
 		WEZTERM_USER = "al",
@@ -29,11 +35,6 @@ local M = function(config)
 		bg_3,
 		bg_4,
 	}
-
-	local wezterm = require("wezterm")
-	local io = require("io")
-	local os = require("os")
-	local act = wezterm.action
 
 	wezterm.on("trigger-vim-with-visible-text", function(window, pane)
 		-- Retrieve the current viewport's text.
@@ -118,23 +119,45 @@ local M = function(config)
 		local cells = {}
 		local uvars = {}
 		local status, retval = pcall(pane.get_user_vars, pane)
-        if status then
+		if status then
 			uvars = retval
 		end
 
 		local vars = guard_user_variables(uvars)
-		local cwd_uri = pane:get_current_working_dir()
 		local hostname = vars["WEZTERM_HOST"]
 		local dot = hostname:find("[.]")
 		if dot then
 			hostname = hostname:sub(1, dot - 1)
 		end
 		table.insert(cells, "")
-		table.insert(cells, "力 " .. vars["WEZTERM_USER"] .. "@" .. hostname)
-		table.insert(cells, "󱘖 " .. pane:get_domain_name())
+		table.insert(cells, " \u{f048b} " .. vars["WEZTERM_USER"] .. "@" .. hostname .. " ")
+		table.insert(cells, " 󱘖 " .. (pane:get_domain_name() or "domain unknown") .. " ")
 
-		local date = wezterm.strftime("%a %b %-d %H:%M")
-		table.insert(cells, " " .. date)
+		local datetime = wezterm.strftime("%a %b %-d\u{2002}\u{f017}\u{2000}%H:%M ")
+		table.insert(cells, "\u{f00ed}\u{2000}" .. datetime)
+
+		local getBatteryIdicator = function(charge)
+			if charge == nil then
+				return
+			end
+			local tenths_of_a_charge = math.floor(charge / 10)
+			print("tenths")
+			print(tenths_of_a_charge)
+
+			local full = 0xf0079
+			local ten_percent = 0xf007a
+			local alert = 0xf0083
+			local icon_index = tenths_of_a_charge > 0 and (full + tenths_of_a_charge) or alert
+			print("icon_index")
+			print(string.format("%x", icon_index))
+			return utf8.char(icon_index)
+		end
+		local batteries = wezterm.battery_info()
+		for _, bat in ipairs(batteries) do
+			local percent_charged = bat.state_of_charge * 100
+			local indicator = getBatteryIdicator(percent_charged)
+			table.insert(cells, math.floor(percent_charged) .. "%\u{2000}\u{f140b}" .. indicator .. "\u{2002}")
+		end
 
 		local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
 
@@ -163,24 +186,54 @@ local M = function(config)
 
 		window:set_right_status(wezterm.format(elements))
 
+		local left_format_string = utf8.char(0xf4b3)
+            .. " "
+			.. utf8.char(0xf178)
+            .. " "
+			.. window:active_workspace()
+			-- .. " 󱘖 "
+            .. "( "
+			.. (pane:get_domain_name() or "domain unknown")
+			.. " )"
+
 		window:set_left_status(wezterm.format({
 			{ Attribute = { Intensity = "Bold" } },
 			{ Foreground = { Color = text_fg } },
 			{ Background = { Color = bg_0 } },
 			{
-				Text = "  " .. window:active_workspace(),
+				Text = left_format_string,
 			},
 			"ResetAttributes",
 		}))
 	end)
+	-- 
+	local function expandTilde(path)
+		local home = os.getenv("HOME")
+		if path:sub(1, 1) == "~" then
+			return home .. path:sub(2)
+		end
+		return path
+	end
 
 	--  ;
 	wezterm.on("format-tab-title", function(tab_info)
-		local title = tab_info.tab_title
-		if title and #title > 0 then
-			return title
-		end
-		return tab_info.active_pane.title:gsub("%b() %-", "")
+		return icons.get_number_icon(tab_info.tab_index + 1)
+			.. "   "
+			.. (function(ti)
+				local title = ti.tab_title
+				if title and #title > 0 then
+					return title
+				end
+				title = ti.active_pane.title:gsub("%b() %-", "")
+				if title == "~" then
+					return expandTilde(title)
+				end
+				local fg_proc = ti.active_pane.foreground_process_name
+				if fg_proc and fg_proc == "zsh" then
+					return "zsh:/" .. ti.active_pane.title:gsub("%b() %-", "")
+				end
+				return title
+			end)(tab_info)
 	end)
 
 	wezterm.on("augment-command-palette", function(window)
