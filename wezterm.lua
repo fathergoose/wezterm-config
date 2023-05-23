@@ -169,6 +169,7 @@ config.webgpu_preferred_adapter = wezterm.gui.enumerate_gpus()[1]
 config.front_end = "WebGpu"
 
 config.default_workspace = "default"
+config.default_domain = "local"
 
 config.default_gui_startup_args = { "connect", "unix" }
 config.tab_max_width = 8

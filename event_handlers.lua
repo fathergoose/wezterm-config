@@ -186,12 +186,15 @@ local M = function(config)
 
 		window:set_right_status(wezterm.format(elements))
 
-		local left_format_string = " 󱘖 "
-			.. (pane:get_domain_name() or "domain unknown")
-			.. " "
-			.. utf8.char(0xf4b3)
-			.. enspace
+		local left_format_string = utf8.char(0xf4b3)
+            .. " "
+			.. utf8.char(0xf178)
+            .. " "
 			.. window:active_workspace()
+			-- .. " 󱘖 "
+            .. "( "
+			.. (pane:get_domain_name() or "domain unknown")
+			.. " )"
 
 		window:set_left_status(wezterm.format({
 			{ Attribute = { Intensity = "Bold" } },
