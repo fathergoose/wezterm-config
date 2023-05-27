@@ -3,8 +3,15 @@ local act = wezterm.action
 local io = require("io")
 local os = require("os")
 local icons = require("icons")
+
 local emspace = "\u{2003}"
 local enspace = "\u{2002}"
+local quad = "\u{2001}"
+local tri = "\u{2000}"
+local server = "\u{f048b}" 
+local calendar = "\u{f00ed}"
+local clock = "\u{f017}"
+local battery = "\u{f140b}"
 
 local guard_user_variables = function(vars)
 	local defaults = {
