@@ -172,7 +172,8 @@ config.default_workspace = "default"
 config.default_domain = "local"
 
 config.default_gui_startup_args = { "connect", "unix" }
-config.tab_max_width = 8
+
+config.status_update_interval = 1000
 
 require("event_handlers")(config)
 return config

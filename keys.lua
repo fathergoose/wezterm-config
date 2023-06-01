@@ -90,7 +90,9 @@ return {
 		{ key = "D", mods = "SHIFT|SUPER", action = act.CloseCurrentPane({ confirm = false }) },
 		{ key = "F", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
 		{ key = "F", mods = "SHIFT|CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
-		{ key = "H", mods = "CTRL", action = act.HideApplication },
+        { key = "h", mods = "CTRL|SUPER", action = act.ActivateTabRelative(-1) },
+		{ key = "l", mods = "CTRL|SUPER", action = act.ActivateTabRelative(1) },
+
 		{ key = "H", mods = "SHIFT|CTRL", action = act.HideApplication },
 		{
 			key = "H",
@@ -124,8 +126,7 @@ return {
 				top_level = false,
 			}),
 		},
-		{ key = "L", mods = "CTRL", action = act.ShowDebugOverlay },
-		{ key = "L", mods = "SHIFT|CTRL", action = act.ShowDebugOverlay },
+		{ key = "L", mods = "SUPER", action = act.ShowDebugOverlay },
 		{
 			key = "L",
 			mods = "CTRL|SUPER",
