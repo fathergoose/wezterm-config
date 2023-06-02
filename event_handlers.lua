@@ -4,14 +4,15 @@ local io = require("io")
 local os = require("os")
 local icons = require("icons")
 
-local emspace = "\u{2003}"
-local enspace = "\u{2002}"
-local quad = "\u{2001}"
-local tri = "\u{2000}"
-local server = "\u{f048b}" 
-local calendar = "\u{f00ed}"
-local clock = "\u{f017}"
-local battery = "\u{f140b}"
+local emspace = "" -- "\u{2003}"
+local enspace = "" -- "\u{2002}"
+local quad = "" -- "\u{2001}"
+local trisp = "\u{2000}"
+local server = "" -- "\u{f048b}"
+local calendar = "" -- "\u{f00ed}"
+local clock = "" -- "\u{f017}"
+local lightning = "\u{f140b}"
+local plug = "" -- "\u{f1616}"
 
 local guard_user_variables = function(vars)
 	local defaults = {
@@ -137,11 +138,13 @@ local M = function(config)
 			hostname = hostname:sub(1, dot - 1)
 		end
 		table.insert(cells, "")
-		table.insert(cells, " \u{f048b} " .. vars["WEZTERM_USER"] .. "@" .. hostname .. " ")
-		table.insert(cells, " 󱘖 " .. (pane:get_domain_name() or "domain unknown") .. " ")
+		-- table.insert(cells, plug .. trisp .. (pane:get_domain_name() or "domain unknown") .. " ")
+		table.insert(cells, vars["WEZTERM_USER"] .. trisp)
+		table.insert(cells, hostname .. trisp)
 
-		local datetime = wezterm.strftime("%a %b %-d\u{2002}\u{f017}\u{2000}%H:%M ")
-		table.insert(cells, "\u{f00ed}\u{2000}" .. datetime)
+        local endash = utf8.char(0x2013)
+		local datetime = wezterm.strftime("%a, %b %-d" .. endash .. "%H:%M ")
+		table.insert(cells,  datetime)
 
 		local getBatteryIdicator = function(charge)
 			if charge == nil then
@@ -163,7 +166,9 @@ local M = function(config)
 		for _, bat in ipairs(batteries) do
 			local percent_charged = bat.state_of_charge * 100
 			local indicator = getBatteryIdicator(percent_charged)
-			table.insert(cells, math.floor(percent_charged) .. "%\u{2000}\u{f140b}" .. indicator .. "\u{2002}")
+            wezterm.log_info("battery.state: %s", bat.state)
+            local lightning_icon = bat.state == "Charging" and (" " .. lightning) or " "
+			table.insert(cells, math.floor(percent_charged) .. "%" .. lightning_icon .. indicator .. trisp)
 		end
 
 		local SOLID_LEFT_ARROW = utf8.char(0xe0b2)
@@ -193,13 +198,13 @@ local M = function(config)
 
 		window:set_right_status(wezterm.format(elements))
 
-		local left_format_string = utf8.char(0xf4b3)
-            .. " "
+		local left_format_string = --[[ utf8.char(0xf4b3)
+			.. " "
 			.. utf8.char(0xf178)
-            .. " "
-			.. window:active_workspace()
+			.. " " 
+			.. ]] window:active_workspace()
 			-- .. " 󱘖 "
-            .. "( "
+			.. "( "
 			.. (pane:get_domain_name() or "domain unknown")
 			.. " )"
 

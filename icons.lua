@@ -3,7 +3,7 @@ local M = {}
 
 M.get_number_icon = function(n)
 	local icons = {
-		numbers = {
+		digits = {
 			square_no_fill = {
 				"\u{f03a3}", -- 0
 				"\u{f03a6}", -- 1
@@ -43,6 +43,31 @@ M.get_number_icon = function(n)
 				"\u{f0b42}", -- 9
 				"\u{f0fe9}", -- 10
 			},
+			round_solid_fill = {
+				"\u{f03a1}", -- 0
+				"\u{f0ca0}", -- 1
+				"\u{f0ca2}", -- 2
+				"\u{f0ca4}", -- 3
+				"\u{f0ca6}", -- 4
+				"\u{f0ca8}", -- 5
+				"\u{f0caa}", -- 6
+				"\u{f0cac}", -- 7
+				"\u{f0cae}", -- 8
+				"\u{f0cb0}", -- 9
+			},
+
+			standard_aribic = {
+				"0:",
+				"1:",
+				"2:",
+				"3:",
+				"4:",
+				"5:",
+				"6:",
+				"7:",
+				"8:",
+				"9:",
+			},
 		},
 	}
 
@@ -55,7 +80,7 @@ M.get_number_icon = function(n)
 		end
 		return table.concat(icons)
 	end
-	return icons.digits.large_digitis[n + 1]
+	return icons.digits.standard_aribic[n + 1]
 end
 
 return M

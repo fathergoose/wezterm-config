@@ -103,7 +103,7 @@ config.font_rules = {
 		}),
 	},
 }
-config.font_size = 12.0
+config.font_size = 11.0
 config.skip_close_confirmation_for_processes_named = {
 	"bash",
 	"sh",
@@ -157,7 +157,7 @@ config.ssh_domains = {
 	},
 	{
 		name = "imac",
-		remote_address = "192.168.1.124",
+		remote_address = "192.168.1.109",
 		local_echo_threshold_ms = 10,
 		username = "al",
 	},
@@ -190,7 +190,7 @@ config.tab_max_width = 8
 require("event_handlers")(config)
 return config
 
--- TODO:
+-- NOTE::
 -- 1. Fix tab titles
 --   - for neovim
 --     - nvim + wezterm.lua
